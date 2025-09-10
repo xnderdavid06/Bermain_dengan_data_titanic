@@ -7,7 +7,7 @@ Variabel ini dibuat dari kolom `age` untuk mengklasifikasikan penumpang berdasar
 - **is_elderly = 1** → Lansia (usia ≥ 60 tahun)  
 - **is_elderly = 0** → Tidak Lansia (usia < 60 tahun)  
 
-Tujuan analisis ini adalah melihat **perbedaan jumlah penumpang dan survival rate** antara lansia dan tidak lansia.
+Tujuan analisis ini adalah melihat **jumlah penumpang** dan **tingkat kelangsungan hidup (survival rate)** berdasarkan kategori umur.
 
 ---
 
@@ -15,32 +15,40 @@ Tujuan analisis ini adalah melihat **perbedaan jumlah penumpang dan survival rat
 
 ```python
 # Import library
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # 1. Memuat Dataset Titanic
 titanic = sns.load_dataset('titanic')
 
-# 2. Membuat variabel baru: is_elderly
+# 2. Membuat variabel 'is_elderly'
 titanic['is_elderly'] = (titanic['age'] >= 60).astype(int)
 
-# 3. Membuat tabel gabungan jumlah penumpang & survival rate
-summary_table = titanic.groupby('is_elderly').agg(
-    Jumlah_Penumpang=('survived', 'count'),
-    Survival_Rate=('survived', 'mean')
-).rename(index={0: 'Tidak Lansia (<60)', 1: 'Lansia (>=60)'})
-
-print("\n📊 Ringkasan Analisis:")
-print(summary_table)
-
-# 4. Visualisasi Survival Rate
+# --- Visualisasi Survival Rate ---
 plt.figure(figsize=(8, 6))
 sns.barplot(x='is_elderly', y='survived', data=titanic, palette='viridis')
+
+# Tambahkan judul dan label
 plt.title('Tingkat Kelangsungan Hidup: Lansia vs Tidak Lansia', fontsize=16)
 plt.xlabel('Kategori Penumpang', fontsize=12)
 plt.ylabel('Tingkat Kelangsungan Hidup (Survival Rate)', fontsize=12)
-plt.xticks([0, 1], ['Tidak Lansia (<60)', 'Lansia (>=60)'])
+
+# Ubah label sumbu X biar lebih informatif
+plt.xticks(ticks=[0, 1], labels=['Tidak Lansia (<60)', 'Lansia (>=60)'])
+
+# Simpan hasil visualisasi ke file PNG
 plt.tight_layout()
-plt.savefig("data_titanic.png")  # simpan hasil visualisasi
+plt.savefig("data_titanic.png")
 plt.show()
+
+# --- Tabel Ringkas ---
+print("\n📊 Rata-rata Kelangsungan Hidup:")
+print(titanic.groupby('is_elderly')['survived'].mean())
+
+print("\n📊 Jumlah Penumpang per Kategori:")
+print(
+    titanic['is_elderly'].value_counts().rename(
+        index={0: 'Tidak Lansia (<60)', 1: 'Lansia (>=60)'}
+    )
+)
