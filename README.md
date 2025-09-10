@@ -1,17 +1,11 @@
-# 🚢 Analisis Titanic: Lansia vs Tidak Lansia
+# 🛳️ Bermain-dengan-data-titanic
 
-## 📌 Deskripsi
-Proyek ini menganalisis data Titanic dengan fokus pada variabel baru **Lansia (is_elderly)**.  
-Variabel ini dibuat dari kolom `age` untuk mengklasifikasikan penumpang berdasarkan umur:
+## 🔹 Analisis Variabel Baru: Lansia (is_elderly)
 
-- **is_elderly = 1** → Lansia (usia ≥ 60 tahun)  
-- **is_elderly = 0** → Tidak Lansia (usia < 60 tahun)  
+Variabel **is_elderly** dibuat berdasarkan umur (`age`) untuk mengklasifikasikan penumpang apakah termasuk lansia atau tidak:  
 
-Tujuan analisis ini adalah melihat **jumlah penumpang** dan **tingkat kelangsungan hidup (survival rate)** berdasarkan kategori umur.
-
----
-
-## 📊 Kode Analisis
+- `is_elderly = 1` → Lansia (usia ≥ 60 tahun)  
+- `is_elderly = 0` → Tidak Lansia (usia < 60 tahun)  
 
 ```python
 # Import library
@@ -25,30 +19,43 @@ titanic = sns.load_dataset('titanic')
 # 2. Membuat variabel 'is_elderly'
 titanic['is_elderly'] = (titanic['age'] >= 60).astype(int)
 
-# --- Visualisasi Survival Rate ---
+# 3. Menampilkan beberapa baris pertama
+print("\nDataset dengan Kolom 'age' dan 'is_elderly':")
+print(titanic[['age', 'is_elderly']].head(10))
+
+# 4. Visualisasi distribusi variabel 'is_elderly'
 plt.figure(figsize=(8, 6))
-sns.barplot(x='is_elderly', y='survived', data=titanic, palette='viridis')
-
-# Tambahkan judul dan label
-plt.title('Tingkat Kelangsungan Hidup: Lansia vs Tidak Lansia', fontsize=16)
-plt.xlabel('Kategori Penumpang', fontsize=12)
-plt.ylabel('Tingkat Kelangsungan Hidup (Survival Rate)', fontsize=12)
-
-# Ubah label sumbu X biar lebih informatif
-plt.xticks(ticks=[0, 1], labels=['Tidak Lansia (<60)', 'Lansia (>=60)'])
-
-# Simpan hasil visualisasi ke file PNG
-plt.tight_layout()
-plt.savefig("data_titanic.png")
+sns.countplot(x='is_elderly', data=titanic, palette='viridis')
+plt.title("Distribusi Penumpang Lansia vs Tidak Lansia")
+plt.xlabel("Tidak Lansia (0) / Lansia (1)")
+plt.ylabel("Jumlah Penumpang")
 plt.show()
 
-# --- Tabel Ringkas ---
-print("\n📊 Rata-rata Kelangsungan Hidup:")
-print(titanic.groupby('is_elderly')['survived'].mean())
+# 5. Visualisasi survival rate berdasarkan 'is_elderly'
+plt.figure(figsize=(8, 6))
+sns.barplot(x='is_elderly', y='survived', data=titanic, palette='viridis')
+plt.title("Tingkat Kelangsungan Hidup: Lansia vs Tidak Lansia")
+plt.xlabel("Kategori Penumpang")
+plt.ylabel("Tingkat Kelangsungan Hidup (Survival Rate)")
+plt.xticks([0, 1], ['Tidak Lansia (<60)', 'Lansia (>=60)'])
+plt.show()
 
-print("\n📊 Jumlah Penumpang per Kategori:")
-print(
-    titanic['is_elderly'].value_counts().rename(
-        index={0: 'Tidak Lansia (<60)', 1: 'Lansia (>=60)'}
-    )
+# 6. Menampilkan ringkasan data
+print("\n📊 Ringkasan Data Lansia vs Tidak Lansia:")
+summary = pd.DataFrame({
+    "Jumlah Penumpang": titanic['is_elderly'].value_counts().rename(index={0: 'Tidak Lansia (<60)', 1: 'Lansia (>=60)'}),
+    "Rata-rata Kelangsungan Hidup": titanic.groupby('is_elderly')['survived'].mean().rename(index={0: 'Tidak Lansia (<60)', 1: 'Lansia (>=60)'})
+})
+print(summary)
+
+# 7. Visualisasi proporsi (Pie Chart)
+plt.figure(figsize=(6, 6))
+plt.pie(
+    summary["Jumlah Penumpang"],
+    labels=summary.index,
+    autopct='%1.1f%%',
+    startangle=90,
+    colors=['#66c2a5', '#fc8d62']
 )
+plt.title("Proporsi Penumpang Lansia vs Tidak Lansia")
+plt.show()
